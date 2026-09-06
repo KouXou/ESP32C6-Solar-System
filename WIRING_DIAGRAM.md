@@ -1,10 +1,11 @@
-# 🔌 Αναλυτικό Διάγραμμα Συνδέσεων - ESP32-C6 Solar System
+# 🔌 WIRING DIAGRAM - ΑΠΛΟΠΟΙΗΜΕΝΟ ΗΛΙΑΚΟ ΣΥΣΤΗΜΑ
 
-## 📋 Γενικό Διάγραμμα Συστήματος
+## 📋 Τελική Διάταξη (Μόνο Ηλιακό)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                   ΕΝΕΡΓΕΙΑΚΑ ΑΥΤΟΝΟΜΟ ΣΥΣΤΗΜΑ ESP32-C6                   │
+│                        (ΜΟΝΟ ΗΛΙΑΚΗ ΦΟΡΤΙΣΗ)                            │
 └──────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -14,261 +15,374 @@
 └─────────────────────────────────────────────────────────────────────────┘
                     │                    │
                     │ Positive (+)      │ Negative (-)
+                    │ (Red Cable)       │ (Black Cable)
                     ▼                    ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │           OPTUM SOLAR LITHIUM BATTERY CHARGER BOARD                      │
-│  • Input: 6V (από ηλιακό πάνελ)                                         │
-│  • Output: Φόρτιση μπαταρίας 3.7V με προστασία                          │
-│  • MPPT Controllers για καλή απόδοση                                    │
+│                                                                          │
+│  • Input: 6V DC (από ηλιακό πάνελ)                                     │
+│  • Output: Φόρτιση μπαταρίας 3.7V με προστασία                         │
+│  • MPPT Controllers για καλή απόδοση                                   │
+│  • Max Charging Current: ~500mA                                        │
+│  • Protection: Over-charge, Over-discharge                             │
+│                                                                          │
+│  INPUT: ─────────────────────────────────────────────── OUTPUT:       │
+│  (+) Red ─────────────────────────────────────────────→ (+) Red       │
+│  (-) Black ───────────────────────────────────────────→ (-) Black     │
 └──────────────────────────────────────────────────────────────────────────┘
-            │                                  │
-            │ Positive (+)                    │ Negative (-)
-            ▼                                  ▼
+            │                                              │
+            │ Red Wire (+3.7V)                           │ Black Wire (GND)
+            ▼                                              ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │              HAITRONIC 18650 BATTERY CASE/HOLDER                         │
-│  • Panasonic 18650 3.7V Lithium Battery (2600-3000mAh)                  │
-│  • Ενσωματωμένα καλώδια για εύκολη σύνδεση                             │
-│  • Voltage: 3.7V nominal (3.0V - 4.2V range)                            │
-│  • Capacity: ~10-12 Wh (2600-3000mAh × 3.7V)                            │
+│                                                                          │
+│  • Panasonic 18650 3.7V Lithium Battery (2600-3000mAh)                 │
+│  • Ενσωματωμένα καλώδια για εύκολη σύνδεση                            │
+│  • Voltage: 3.0V (depleted) → 3.7V (nominal) → 4.2V (full)            │
+│  • Capacity: ~10-12 Wh (2600-3000mAh × 3.7V)                           │
+│  • Recharge Time: ~3-4 hours (with 3.5W solar panel)                   │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────┐              │
+│  │  (+) RED WIRE    ← Charging positive                 │              │
+│  │  │               ← Discharging positive to DC/DC     │              │
+│  │  │ [18650]                                           │              │
+│  │  │ 3.7V Nominal                                      │              │
+│  │  │               ← Discharging negative to DC/DC     │              │
+│  │  (-) BLACK WIRE  ← Charging negative (GND)           │              │
+│  └──────────────────────────────────────────────────────┘              │
 └──────────────────────────────────────────────────────────────────────────┘
-            │                                  │
-            │ (+) Battery Positive            │ (-) Battery Negative
-            ▼                                  ▼
+            │                                              │
+            │ (+) Red Wire (3.7V)                        │ (-) Black Wire (GND)
+            ▼                                              ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │         HAITRONIC DC/DC STEP-DOWN CONVERTER (HS2670)                     │
-│  • Input: 5-12V (Ελαστικό εύρος)                                        │
-│  • Output Options: 24V, 12V, 5V, 3.3V (Ρυθμιζόμενο)                     │
-│  • Current: Max 2A (σχετικά)                                            │
-│  • Protection: Over-current, Over-voltage                               │
-│  ┌─────────────────────────────────────────────────────────────┐       │
-│  │ INPUT SIDE        │  ADJUSTMENT  │ OUTPUT SIDE              │       │
-│  ├──────────────────┼──────────────┼──────────────────────────┤       │
-│  │ IN+ (Red)        │ Potentiometer│ OUT+ (Red)               │       │
-│  │ IN- (Black)      │              │ OUT- (Black)             │       │
-│  └──────────────────┴──────────────┴──────────────────────────┘       │
-│                                                                         │
-│  ⚙️ ΡΥΘΜΙΣΗ: Στρέψτε την δοσομετρική βίδα για 3.3V output             │
-│  (Μετρήστε με Multimeter)                                             │
+│                                                                          │
+│  Λειτουργία: Μετατροπή 3.7V → 3.3V με ρύθμιση                         │
+│                                                                          │
+│  INPUT:             POTENTIOMETER:        OUTPUT:                      │
+│  ───────            ─────────────         ──────                       │
+│  IN+ (Red)          /\/\/\                OUT+ (Red) ──→ 3.3V         │
+│  │                  (Adjustment)          │                           │
+│  │                  Rotate clockwise      │                           │
+│  │                  for higher V          │                           │
+│  │                                        │                           │
+│  IN- (Black) ──────────────────────────→ OUT- (Black) ──→ GND        │
+│                                                                          │
+│  ⚙️ ΡΥΘΜΙΣΗ:                                                            │
+│  1. Συνδέστε Multimeter στα OUTPUT pins                               │
+│  2. Ρυθμίστε την δοσομετρική βίδα μέχρι να δείξει 3.3V                │
+│  3. Ελάχιστη ακρίβεια: 3.25V - 3.35V (ιδανικά 3.30V)                 │
+│  4. Σταθεροποιήστε με κολλητό κερί όταν ρυθμιστεί                     │
+│                                                                          │
+│  Specifications:                                                        │
+│  • Input: 3.0V - 5.5V (Battery: 3.0-4.2V ✓)                           │
+│  • Output: Ρυθμιζόμενο (Set to 3.3V)                                  │
+│  • Max Current: 2A continuous                                         │
+│  • Efficiency: ~92% (minimal heat)                                    │
+│  • Quiescent Current: 2-5mA (negligible)                              │
 └──────────────────────────────────────────────────────────────────────────┘
-            │                                  │
-            │ OUT+ (3.3V)                     │ OUT- (GND)
-            ▼                                  ▼
+            │ OUT+ (3.3V)                       │ OUT- (GND)
+            │ Red Wire                          │ Black Wire
+            ▼                                    ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │          HAITRONIC 170-POINT BREADBOARD (Blue)                           │
 │                     170 θέσεων - Χωρίς τσιμούχες                       │
-├──────────────────────────────────────────────────────────────────────────┤
-│  Power Rails:                                                            │
-│  ├─ TOP: (+) 3.3V Rail (Κόκκινο)                                        │
-│  ├─ TOP: (-) GND Rail (Μαύρο)                                           │
-│  └─ BOTTOM: Additional GND (για παράλληλες συνδέσεις)                   │
-│                                                                         │
-│  Signal Rows:                                                           │
-│  ├─ Row A-E: ESP32-C6 GPIO Pins                                        │
-│  ├─ Row F-J: Αισθητήρες / Έξοδοι                                       │
-│  └─ Row K-O: Αναφορά & διασταυρούμενες συνδέσεις                        │
+│                                                                          │
+│  ┌────────────────────────────────────────────────────────────┐         │
+│  │ TOP POWER RAIL:                                            │         │
+│  │ ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓   │         │
+│  │ ┃ (+) 3.3V Rail ← Connected to DC/DC OUT+ (RED)        ┃   │         │
+│  │ ┃ (-) GND Rail ← Connected to DC/DC OUT- (BLACK)       ┃   │         │
+│  │ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   │         │
+│  │                                                            │         │
+│  │ SIGNAL ROWS (A-O):                                         │         │
+│  │ ├─ Row A: Available for jumper wires                       │         │
+│  │ ├─ Row B: Available for jumper wires                       │         │
+│  │ ├─ ...                                                     │         │
+│  │ ├─ Row E: Available for jumper wires                       │         │
+│  │ │                                                          │         │
+│  │ ├─ [ESP32-C6 will be inserted here]                        │         │
+│  │ │                                                          │         │
+│  │ └─ Row O: Available for sensors/LEDs                       │         │
+│  │                                                            │         │
+│  │ BOTTOM POWER RAIL:                                         │         │
+│  │ ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓   │         │
+│  │ ┃ (+) 3.3V Rail (parallel to top)                      ┃   │         │
+│  │ ┃ (-) GND Rail (parallel to top, for redundancy)       ┃   │         │
+│  │ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   │         │
+│  └────────────────────────────────────────────────────────────┘         │
+│                                                                          │
+│  Καπάκια Σταθεροποίησης (Bypass Capacitors):                           │
+│  ├─ 100µF Electrolytic Cap: + at 3.3V rail, - at GND rail             │
+│  └─ 10µF Ceramic Cap: + at 3.3V rail, - at GND rail                   │
+│     (Ελαχιστοποίηση θορύβου & απότομα ρεύματα)                        │
 └──────────────────────────────────────────────────────────────────────────┘
-                    │                    │
-                    │ 3.3V               │ GND
-                    ▼                    ▼
+                    │                                │
+                    │ 3.3V Power                    │ GND Reference
+                    ▼                                ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                    SEEED XIAO ESP32-C6 DEVELOPMENT BOARD                 │
-│                                                                         │
-│  Pinout (Top View):                                                    │
-│  ┌─────────────────────────────────────────────────┐                  │
-│  │ D0/GPIO0    GND         D1/GPIO1    3V3        │                  │
-│  │ D2/GPIO2    D3/GPIO3    D4/GPIO4    D5/GPIO5   │                  │
-│  │ D6/GPIO6    D7/GPIO7    D8/GPIO8    D9/GPIO9   │                  │
-│  │ D10/GPIO10  GND         D11/GPIO11  5V(USB)    │                  │
-│  └─────────────────────────────────────────────────┘                  │
-│                                                                         │
-│  Key Features:                                                         │
-│  • MCU: ESP32-C6 (RISC-V + 802.11b/g/n WiFi)                          │
-│  • RAM: 512KB SRAM                                                     │
-│  • Flash: 4MB                                                          │
-│  • ADC: 12-bit (6 channels)                                           │
-│  • Deep Sleep: <10µA                                                   │
-│  • Operating Voltage: 3.0V - 3.6V                                      │
-│  • Max Current: 500mA (all pins combined)                              │
-│  • GPIO: All pins 3.3V (NOT 5V tolerant!)                             │
+│                                                                          │
+│  Insertion into Breadboard:                                            │
+│  ┌────────────────────────────────────────┐                           │
+│  │  D0/GPIO0   GND      D1/GPIO1   3V3   │                           │
+│  │  D2/GPIO2   D3/GPIO3 D4/GPIO4   D5   │                           │
+│  │  D6/GPIO6   D7/GPIO7 D8/GPIO8   D9   │                           │
+│  │  D10/GPIO10 GND      D11/GPIO11 5V   │                           │
+│  └────────────────────────────────────────┘                           │
+│                                                                          │
+│  Power Connections:                                                    │
+│  ├─ Pin 12 (3V3) ─→ Breadboard 3.3V Rail (RED)                        │
+│  └─ Pin 11 (GND) ─→ Breadboard GND Rail (BLACK)                       │
+│                                                                          │
+│  Recommended GPIO for Battery Monitoring:                              │
+│  └─ Pin 5 (D5/GPIO5 - ADC_CH4) ─→ Battery voltage divider             │
+│     (Measure battery level during operation)                           │
+│                                                                          │
+│  MCU Specifications:                                                   │
+│  • Processor: ESP32-C6 RISC-V                                         │
+│  • RAM: 512KB SRAM                                                    │
+│  • Flash: 4MB                                                         │
+│  • WiFi: 802.11 b/g/n                                                 │
+│  • ADC: 12-bit, 6 channels                                            │
+│  • Deep Sleep Current: <10µA ◄─ Ultra-low power                       │
+│  • Active Current: 80-100mA                                           │
+│  • WiFi TX Current: 200-300mA (peak)                                  │
+│  • Voltage Range: 3.0V - 3.6V (⚠️ NOT 5V tolerant!)                   │
+│  • Max GPIO Current (combined): 500mA                                 │
+│                                                                          │
+│  USB Debug Port:                                                       │
+│  └─ Connect via USB cable for programming & serial monitor            │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔌 Λεπτομερής Σύνδεση Καλωδίων
+## 🔌 Απλοποιημένος Πίνακας Συνδέσεων
 
-### **Σύνδεση 1: Ηλιακό Πάνελ → Charger Board**
-```
-Optum HR0472 Solar Panel
-├─ Red Wire (+6V)  ──→ Optum Charger Board Input (+)
-└─ Black Wire (GND) ──→ Optum Charger Board Input (-)
-```
+| # | Από | Προς | Χρώμα | Μήκος | Σημείωση |
+|---|-----|------|-------|--------|----------|
+| 1 | Solar Panel (+) | Charger IN (+) | Red | ~20cm | Input 6V |
+| 2 | Solar Panel (-) | Charger IN (-) | Black | ~20cm | Ground |
+| 3 | Charger OUT (+) | Battery Case (+) | Red | ~10cm | Pass-through |
+| 4 | Charger OUT (-) | Battery Case (-) | Black | ~10cm | Ground |
+| 5 | Battery (+) | DC/DC IN (+) | Red | ~15cm | 3.7V input |
+| 6 | Battery (-) | DC/DC IN (-) | Black | ~15cm | Ground |
+| 7 | DC/DC OUT (+) | Breadboard 3.3V Rail | Red | ~10cm | 3.3V supply |
+| 8 | DC/DC OUT (-) | Breadboard GND Rail | Black | ~10cm | Ground |
+| 9 | Breadboard 3.3V | ESP32 Pin 12 (3V3) | Red | ~5cm | Power |
+| 10 | Breadboard GND | ESP32 Pin 11 (GND) | Black | ~5cm | Ground |
+| - | Capacitor 100µF | Breadboard Rails | - | - | Smoothing |
+| - | Capacitor 10µF | Breadboard Rails | - | - | High-freq noise |
 
-### **Σύνδεση 2: Charger Board → Μπαταρία**
-```
-Optum Charger Board Output
-├─ Red Wire (+)  ──→ Battery Case (+) connector
-└─ Black Wire (-) ──→ Battery Case (-) connector
+---
 
-⚠️ ΠΡΟΣΟΧΗ: Μη ανατρέψετε την πολικότητα!
-```
+## ⚡ Power Flow Diagram
 
-### **Σύνδεση 3: Μπαταρία → DC/DC Converter**
 ```
-Panasonic 18650 Battery (3.7V)
-├─ Red Wire (+3.7V)  ──→ DC/DC Converter INPUT (+)
-└─ Black Wire (GND)  ──→ DC/DC Converter INPUT (-)
-
-🔧 ΡΥΘΜΙΣΗ DC/DC:
-1. Συνδέστε Multimeter στα OUTPUT pins
-2. Ρυθμίστε την δοσομετρική βίδα για 3.3V output
-3. Χαλαρώστε δεξιόστροφα για ↑ τάση
-4. Χαλαρώστε αριστερόστροφα για ↓ τάση
-```
-
-### **Σύνδεση 4: DC/DC Converter → Breadboard**
-```
-DC/DC Converter Output
-├─ Red Wire (3.3V)  ──→ Breadboard POWER RAIL (+)
-├─ Black Wire (GND) ──→ Breadboard POWER RAIL (-)
-└─ [Optional] 100µF Capacitor in parallel 
-   (Ελαχιστοποιεί θόρυβο & σταθεροποιεί τάση)
-```
-
-### **Σύνδεση 5: Breadboard → ESP32-C6**
-```
-Breadboard (Power Rails)
-├─ 3.3V Rail ──→ ESP32-C6 Pin: 3V3 (top right)
-├─ GND Rail  ──→ ESP32-C6 Pin: GND (multiple pins available)
-└─ GND Rail  ──→ ESP32-C6 Pin: GND (for redundancy)
-
-🔌 Pin Diagram (Seeed XIAO ESP32-C6):
-┌────────────────────────────────────┐
-│ Pin 12 (3V3)  ← 3.3V Rail (+)      │
-│ Pin 11 (GND)  ← GND Rail (-)       │
-│ Pin 1 (D0)    ← GPIO0 (Optional)   │
-└────────────────────────────────────┘
+ΗΛΙΟΣ
+  │
+  ▼
+┌────────────────────┐
+│  Solar Panel       │
+│  6V @ 3.5W Max     │
+└────────────────────┘
+  │
+  ▼
+┌────────────────────┐
+│ Optum Charger      │
+│ (MPPT optimized)   │
+└────────────────────┘
+  │
+  ▼
+┌────────────────────┐      Δημέρα:    Νύχτα:
+│  18650 Battery     │      Φορτίζει    Τροφοδοτεί
+│  3.7V @ 2600mAh    │      ↓           ↓
+│  9.6Wh Total       │
+└────────────────────┘
+  │
+  ▼
+┌────────────────────┐
+│ DC/DC Converter    │
+│ 3.7V → 3.3V        │
+│ 92% Efficient      │
+└────────────────────┘
+  │
+  ▼
+┌────────────────────┐
+│ Breadboard         │
+│ 3.3V Power Rail    │
+└────────────────────┘
+  │
+  ▼
+┌────────────────────┐
+│ ESP32-C6           │
+│ • WiFi             │
+│ • Processing       │
+│ • ADC readings     │
+│ • Deep Sleep mode  │
+└────────────────────┘
 ```
 
 ---
 
-## 🔋 Πλήρες Wiring Table
-
-| Σύνδεση | From | To | Color | Σημειώσεις |
-|---------|------|------|-------|-----------|
-| **1a** | Solar Panel (+) | Charger IN (+) | Red | 6V input |
-| **1b** | Solar Panel (-) | Charger IN (-) | Black | Ground |
-| **2a** | Charger OUT (+) | Battery Case (+) | Red | 3.7V charging |
-| **2b** | Charger OUT (-) | Battery Case (-) | Black | Ground |
-| **3a** | Battery (+) | DC/DC IN (+) | Red | 3.7V input |
-| **3b** | Battery (-) | DC/DC IN (-) | Black | Ground |
-| **4a** | DC/DC OUT (+) | Breadboard Power + | Red | 3.3V regulated |
-| **4b** | DC/DC OUT (-) | Breadboard Power - | Black | Ground |
-| **5a** | Breadboard Power + | ESP32 Pin 12 (3V3) | Red | Main power |
-| **5b** | Breadboard Power - | ESP32 Pin 11 (GND) | Black | Main ground |
-| **CAP** | 100µF Capacitor | Breadboard Power Rails | - | ± 10µF tolerance |
-
----
-
-## ⚡ Power Distribution Plan
+## 🎯 Τοποθέτηση Εξαρτημάτων
 
 ```
-                 BATTERY (3.7V, 2600mAh)
-                        │
-                        ▼
-                    [3.7V = 9.6Wh]
-                        │
-                        ▼
-            ┌───────────────────────────┐
-            │   DC/DC CONVERTER         │
-            │   Input: 3.7V             │
-            │   Output: 3.3V @ 2A MAX   │
-            │   Eff: ~92%               │
-            └───────────────────────────┘
-                        │
-                ┌───────┴────────┐
-                ▼                ▼
-          [Breadboard]      [ESP32-C6]
-          Power Rails       (VCC/GND)
-          (3.3V ± GND)
-                │                │
-                ▼                ▼
-          [Sensors]         [WiFi/GPIO]
-          (optional)        (MCU Core)
+┌─────────────────────────────────────────────────┐
+│            TYPICAL INSTALLATION                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  [SOLAR PANEL]  ◄─ Mounted outdoor/sunny spot  │
+│       ↓                                         │
+│  [Weather-proof enclosure]                      │
+│  ├─ Optum Charger Board                        │
+│  ├─ Battery Case (18650)                       │
+│  └─ Cables in/out                              │
+│       ↓                                         │
+│  [Main box/enclosure]                          │
+│  ├─ DC/DC Converter                            │
+│  ├─ Breadboard with ESP32                      │
+│  ├─ Capacitors                                 │
+│  └─ Jumper wires                               │
+│                                                 │
+│  Καλώδια σύνδεσης:                             │
+│  • Solar to Charger: Thick wires (20 AWG)      │
+│  • Charger to Battery: Medium (22 AWG)         │
+│  • Battery to DC/DC: Medium (22 AWG)           │
+│  • DC/DC to Breadboard: Thin (24 AWG)          │
+│                                                 │
+└─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 Voltage Levels at Each Stage
+## ✅ Βήματα Συνδέσμολογίας (Step by Step)
 
-| Stage | Min Voltage | Nominal | Max Voltage | Tolerance |
-|-------|-------------|---------|-------------|-----------|
-| Solar Panel | 4.5V | 6V | 7V | ± 1V |
-| Battery (discharged) | 3.0V | 3.7V | 4.2V (charged) | Full range |
-| DC/DC Input | 3.0V | 3.7V | 4.2V | ✓ Within range |
-| DC/DC Output | 3.2V | **3.3V** | 3.4V | ✓ Regulated |
-| ESP32-C6 VCC | **3.0V** | **3.3V** | **3.6V** | ✓ Safe range |
+### **Βήμα 1: Προετοιμασία**
+- [ ] Αποσυναρμολόγηση όλων των εξαρτημάτων
+- [ ] Έλεγχος τάσης solar panel με multimeter (θα δείξει 0V χωρίς ήλιο)
+- [ ] Ετοιμάστε καλώδια & jumpers
 
-⚠️ **CRITICAL**: ESP32-C6 is NOT 5V tolerant! Keep all GPIO at 3.3V max.
-
----
-
-## 🛠️ Εργαλεία Αναγκαία
-
-- ✂️ Wire strippers (για καθάρισμα καλωδίων)
-- 🔩 Soldering iron & solder (εάν χρειάζεται σύνδεση χωρίς jumpers)
-- 📏 Multimeter (για έλεγχο τάσης & DC/DC ρύθμιση)
-- 🔌 Jumper wires (22 AWG recommended)
-- 🧤 Heat shrink tubing (για προστασία συνδέσεων)
-- 🔧 Small screwdriver (για DC/DC potentiometer ρύθμιση)
-
----
-
-## ⚠️ Σημαντικές Προειδοποιήσεις
-
-1. **Μπαταρία 18650**: 
-   - Μην υπερφορτίζετε (max 4.2V)
-   - Μην εκφορτίζετε κάτω από 2.5V (πλήρης εκφόρτιση = ζημιά)
-   - Θερμοκρασία: -20°C έως +60°C
-
-2. **DC/DC Converter**:
-   - Ρυθμίστε με ΑΚΡΊΒΕΙΑ στα 3.3V (όχι 3.4V ή 3.2V)
-   - Προσθέστε 100µF capacitor για σταθερότητα
-
-3. **ESP32-C6**:
-   - Όλα τα GPIO είναι 3.3V ONLY
-   - Μην συνδέετε 5V σε GPIO pins
-   - Max combined current: 500mA (all pins)
-
-4. **Καλώδια**:
-   - Χρησιμοποιήστε τουλάχιστον 22 AWG (0.6mm²) για ρεύμα > 1A
-   - Στερεώστε καλά τις συνδέσεις (χαλαρά καλώδια = διακοπή)
-
-5. **Breadboard**:
-   - Μην πιέζετε πολύ τα καλώδια στις τρύπες
-   - Χρησιμοποιήστε κατάλληλα καλώδια (22 AWG)
-
----
-
-## 📸 Φωτογραφικό Παράδειγμα Θέσης Εξαρτημάτων
-
+### **Βήμα 2: Σύνδεση Solar Panel → Charger**
 ```
-┌─────────────────────────────────────────────────────┐
-│  SOLAR PANEL (on top/side - direct sunlight)       │
-│         ↓                                            │
-│  CHARGER BOARD (weatherproof enclosure)            │
-│         ↓                                            │
-│  BATTERY CASE (inside enclosure)                   │
-│         ↓                                            │
-│  DC/DC CONVERTER (on breadboard or separate)       │
-│         ↓                                            │
-│  BREADBOARD (in box with ESP32)                    │
-│         ↓                                            │
-│  ESP32-C6 (center of breadboard)                   │
-└─────────────────────────────────────────────────────┘
+1. Ηλιακό Panel: Red (+) → Charger IN (+)
+2. Ηλιακό Panel: Black (-) → Charger IN (-)
+3. ✅ Ελέγχει ότι η τάση εμφανίζεται στα OUT pins (~3.7V)
+```
+
+### **Βήμα 3: Σύνδεση Charger → Battery**
+```
+1. Charger OUT (+) → Battery Case (+)
+2. Charger OUT (-) → Battery Case (-)
+3. ✅ Μην συνδέσετε άλλα εξαρτήματα ακόμα!
+```
+
+### **Βήμα 4: Σύνδεση Battery → DC/DC**
+```
+1. Battery (+) → DC/DC IN (+)
+2. Battery (-) → DC/DC IN (-)
+3. ⚙️ Ρυθμίστε DC/DC potentiometer για 3.3V output
+   (Χρησιμοποιήστε multimeter για μέτρηση)
+4. ✅ Σταθεροποιήστε με κολλητό κερί
+```
+
+### **Βήμα 5: Σύνδεση DC/DC → Breadboard**
+```
+1. DC/DC OUT (+) → Breadboard 3.3V Rail (κόκκινη)
+2. DC/DC OUT (-) → Breadboard GND Rail (μαύρη)
+3. Προσθέστε 100µF capacitor στις ράγες τροφοδοσίας
+4. ✅ Μετρήστε: 3.3V μεταξύ 3.3V & GND rails
+```
+
+### **Βήμα 6: Σύνδεση Breadboard → ESP32**
+```
+1. Εισαγάγετε ESP32 στο breadboard κεντρικά
+2. ESP32 Pin 12 (3V3) → Breadboard 3.3V Rail
+3. ESP32 Pin 11 (GND) → Breadboard GND Rail
+4. ✅ Μετρήστε: 3.3V στα VCC pins του ESP32
+```
+
+### **Βήμα 7: Προαιρετική Παρακολούθηση Μπαταρίας**
+```
+1. Διαιρέτης τάσης (10kΩ + 10kΩ):
+   Battery (+) ──[10kΩ]──┬──[10kΩ]── Battery (-)
+                         │
+                         └──→ ESP32 GPIO5 (ADC_CH4)
+2. Αυτό σας δίνει 1.85V στο ADC (μέσα στο εύρος 0-3.3V)
 ```
 
 ---
 
-✅ **Επόμενο βήμα**: Δείτε `SCHEMATIC.txt` για το ηλεκτρονικό κύκλωμα
-✅ **Προγραμματισμός**: Δείτε `firmware/main.cpp` για τον κώδικα ESP32
+## 🔍 Επαληθεύσεις Μετρήσεων
+
+| Σημείο | Αναμενόμενη Τάση | Ανοχή | Εργαλείο | Status |
+|--------|-----------------|--------|---------|--------|
+| Solar Panel (μεσημέρι) | ~6V | ±0.5V | Multimeter | ✓ |
+| Charger OUT (κατά φόρτιση) | ~3.7V | ±0.2V | Multimeter | ✓ |
+| Battery (+) | 3.0-4.2V | Full range | Multimeter | ✓ |
+| DC/DC OUT | 3.3V | ±0.05V | Multimeter | ✓ |
+| Breadboard Rail | 3.3V | ±0.1V | Multimeter | ✓ |
+| ESP32 VCC | 3.3V | ±0.1V | Multimeter | ✓ |
+| ESP32 GND | 0V | Reference | Multimeter | ✓ |
+
+---
+
+## ⚠️ Κοινά Λάθη & Δικαιώματα
+
+| Λάθος | Αιτία | Λύση |
+|-------|-------|------|
+| ESP32 δεν ανάβει | Χαμηλή τάση DC/DC | Ρυθμίστε DC/DC για 3.3V |
+| Battery σε κύκλο φόρτισης | Σφάλμα πολικότητας | Ελέγχετε Red/Black wires |
+| Καμένο DC/DC | Υπέρταση input | Ελέγχετε ότι battery < 4.2V |
+| Breadboard χωρίς ρεύμα | Φύτευση δύσκολη | Πιέστε pins κάθετα |
+
+---
+
+## 📊 Αυτονομία & Διάρκεια Ζωής
+
+```
+Scenario 1: Deep Sleep Mode (Recommended)
+───────────────────────────────────────
+• ESP32 ξυπνάει κάθε 10 λεπτά
+• Λαμβάνει μετρήσεις: 2 δευτερόλεπτα
+• Το υπόλοιπο: Deep sleep @ 10µA
+
+Κατανάλωση:
+1. Deep Sleep: 10µA × 600s = 6 mC per cycle
+2. Wake + Measure: 80mA × 2s = 160 mC per cycle
+3. Total: ~166 mC per 10min = ~1 mAh per hour
+4. Battery: 2600mAh ÷ 1mAh/hr = 2600 hours = ~108 days
+
+Με ηλιακό: ΑΝΕΞΑΡΤΗΤΗ ΛΕΙΤΟΥΡΓΙΑ (indefinite) ✅
+
+───────────────────────────────────────
+
+Scenario 2: WiFi Every Hour (10 seconds)
+───────────────────────────────────────
+• Deep sleep: 59.9 λεπτά
+• WiFi TX: 10 δευτερόλεπτα
+
+Κατανάλωση:
+1. Deep Sleep: 10µA × 3594s = 36 mC per hour
+2. WiFi TX: 250mA × 10s = 2500 mC per hour
+3. Total: ~2536 mC = 2.5 mAh per hour
+4. Battery: 2600mAh ÷ 2.5mAh/hr = 1040 hours = ~43 days
+
+Με ηλιακό: ΑΝΕΞΑΡΤΗΤΗ ΛΕΙΤΟΥΡΓΙΑ (indefinite) ✅
+```
+
+---
+
+## 🚀 Επόμενο Βήμα
+
+Δείτε **`firmware/main.cpp`** για τον κώδικα ESP32-C6 που περιλαμβάνει:
+- ✅ Power management & deep sleep
+- ✅ Battery voltage monitoring
+- ✅ WiFi connectivity
+- ✅ MQTT publishing
+- ✅ Graceful shutdown
+
+---
+
+**Σημ.**: Το TP4056 δεν χρησιμοποιείται σε αυτή την διάταξη.
